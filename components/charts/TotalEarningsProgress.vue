@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import type { Order } from '@/types'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{
   orders: Order[]
   weeklyTarget?: number
 }>()
+
+const emit = defineEmits(['update:weeklyTarget'])
+const authStore = useAuthStore()
+const showTargetInput = ref(false)
+const newTarget = ref(props.weeklyTarget ?? 10000)
+
+watch(() => props.weeklyTarget, (val) => {
+  newTarget.value = val ?? 10000
+})
 
 const totalEarnings = computed(() => {
   return (
@@ -22,9 +31,14 @@ const progressPercent = computed(() => {
     const t = typeof order.totalPrice === 'string' ? Number(order.totalPrice.replace(/\D/g, '')) : order.totalPrice
     return sum + (t || 0)
   }, 0)
-  const target = props.weeklyTarget ?? 10.000
+  const target = props.weeklyTarget ?? 10000
   return Math.min(100, Math.round((total / target) * 100))
 })
+
+function saveTarget() {
+  emit('update:weeklyTarget', Number(newTarget.value))
+  showTargetInput.value = false
+}
 </script>
 
 <template>
@@ -33,10 +47,28 @@ const progressPercent = computed(() => {
       <h2 class="text-lg sm:text-md xs:text-sm font-bold text-gray-800">
         Toplam Kazanç
       </h2>
-      <span class="text-gray-500 text-sm sm:text-base">Haftalık Hedef: ₺{{props.weeklyTarget}}</span>
+      <span class="text-gray-500 text-sm sm:text-base">Haftalık Hedef: ₺{{ props.weeklyTarget }}</span>
+      <div v-if="authStore.userInfo.role == 'Yönetici'" class="relative flex items-center">
+        <UButton
+          class="!text-sm sm:!text-base xs:!text-xs rounded-full shadow-sm mr-2"
+          @click="showTargetInput = !showTargetInput"
+        >
+          Haftalık Hedef Belirle
+        </UButton>
+        <div v-if="showTargetInput" class="w-45 h-15  absolute left-full ml-2 flex items-center bg-white border-none shadow-md rounded px-2 py-1 z-10">
+          <input
+            v-model="newTarget"
+            type="number"
+            min="0"
+            class="w-24 px-2 py-1 border rounded text-gray-800 text-sm mr-2"
+            placeholder="Hedef ₺"
+          />
+          <UButton size="xs" @click="saveTarget" class="!text-xs !px-2">Kaydet</UButton>
+        </div>
+      </div>
       <span class="text-blue-600 text-xl sm:text-2xl font-bold">{{ totalEarnings }}</span>
     </div>
-    <!-- Circular Progress -->
+
     <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto relative">
       <svg class="w-full h-full" viewBox="0 0 100 100">
         <circle

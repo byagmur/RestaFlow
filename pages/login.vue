@@ -70,23 +70,26 @@ async function onSubmit(event: Event) {
           @submit="onSubmit"
         >
           <div>
+            <h2 class="text-gray-700">Kullanıcı adı</h2>
             <UInput
               v-model="authStore.form.username"
               type="text"
               placeholder="Kullanıcı adınızı girin"
               variant="none"
-              class="!custom-input  w-full border-b !border-gray-300 transition-colors py-2 !text-gray-950 !text-lg"
+              class="!custom-input w-full border-b !border-gray-300 focus:border-blue-700 transition-colors py-2 !text-gray-950"
               required
+              :ui="{ base: '!bg-white text-gray-950 placeholder:text-gray-400' }"
             />
           </div>
 
           <div>
+            <h2 class="text-gray-700">Parola</h2>
             <UInput
               v-model="authStore.form.password"
               type="password"
               placeholder="Şifrenizi girin"
               variant="none"
-              class="!custom-input w-full border-b !border-gray-300 transition-colors py-2 !text-gray-950"
+              class="!custom-input w-full border-b !border-gray-300 focus:border-blue-700 transition-colors py-2 !text-gray-950"
               required
             />
           </div>
@@ -99,6 +102,7 @@ async function onSubmit(event: Event) {
               block
               class="h-12 !text-white bg-blue-500 hover:bg-blue-600 transition-all rounded-md mt-7"
               :loading="authStore.isLoading"
+             
             >
               GİRİŞ YAP
             </UButton>
@@ -129,25 +133,19 @@ async function onSubmit(event: Event) {
 </template>
 
 <style scoped>
-.bg-blue-700 {
-  background-color: steelblue;
-}
-.hover\:bg-blue-800:hover {
-  background-color: #3a6d8c;
-}
-.hover\:text-blue-800:hover {
-  color: #3a6d8c;
-}
+
 .custom-input {
-  background-color: rgba(238, 238, 238, 0.7) !important;
-  border-bottom:
-    2px solid,
-    #838383 !important;
-  color: #e5e5e5 !important;
+  background-color: #f5f5f5 !important; /* Açık gri veya istediğin renk */
+  color: #222 !important; /* Koyu renk */
+  border-bottom: 2px solid #838383 !important;
   border-radius: 4px 4px 0 0 !important;
 }
 
-.custom-input::placeholder {
-  color: #ababab !important;
+.custom-input:focus {
+  border-bottom:
+    2px solid,
+    #ababab !important;
+  box-shadow: 0 1px 0 0 rgba(171, 171, 171, 0.5) !important;
 }
+
 </style>

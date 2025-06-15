@@ -18,6 +18,13 @@ export interface ServiceResponse {
 }
 
 
+export interface OrderItem {
+  id?: number
+  name: string
+  quantity?: number
+  price?: number
+}
+
 export interface Order {
   uid: string
   tableId: string | number
@@ -25,4 +32,7 @@ export interface Order {
   totalPrice: number | string
   status: string
   waiterId: number
+  note?: string
+  waiterName?: string
+  items?: OrderItem[]
 }

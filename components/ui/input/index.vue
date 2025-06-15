@@ -37,7 +37,7 @@ const emit = defineEmits(['update:modelValue'])
     :type="type"
     :placeholder="placeholder"
     :variant="variant"
-    :class="['!custom-input w-full border-b !border-gray-300 focus:border-blue-700 transition-colors py-2', class]"
+    :class="['!custom-input w-full border-b !border-gray-300 transition-colors py-2', class]"
     :required="required"
     @input="emit('update:modelValue', $event.target.value)"
   />

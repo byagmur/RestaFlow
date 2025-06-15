@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       tailwindcss(),
+      
     ],
   },
   components: [
@@ -36,7 +37,9 @@ export default defineNuxtConfig({
       overrideConfig: false,
     },
   },
-  
+ colorMode: {
+    preference: 'light'
+  },
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE,
