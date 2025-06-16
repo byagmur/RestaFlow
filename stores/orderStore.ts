@@ -1,7 +1,7 @@
+import type { Order } from '~/types'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { useAuthStore } from '@/stores/authStore'
-import type { Order } from '~/types'
 
 export const useOrderStore = defineStore('order', () => {
   const baseUrl = useRuntimeConfig().public.apiBase
@@ -75,29 +75,25 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   async function fetchOrders({ start = 0, limit = 20, waiterID }: { start?: number, limit?: number, waiterID?: number } = {}) {
-  isLoading.value = true
-  error.value = null
-  try {
-    const params: any = { start, limit }
-    if (waiterID) params.waiterID = waiterID
-    const res = await $fetch(`${baseUrl}/Orders`, {
-      params
-    }) as { data: any[]; totalCount: number }
-    orders.value = (res.data || []).map((order: any) => ({
-      uid: order.uid,
-      tableId: order.tableID,
-      orderDate: order.orderDate,
-      totalPrice: order.totalPrice,
-      status: order.status,
-      waiterId: order.waiterID
-    })) as Order[]
-    return { totalCount: res.totalCount }
-  } catch (err: any) {
-    error.value = err?.response?.data || err.message
-  } finally {
-    isLoading.value = false
+    isLoading.value = true
+    error.value = null
+    try {
+      const params: any = { start, limit }
+      if (waiterID)
+        params.waiterID = waiterID
+      const res = await $fetch(`${baseUrl}/Orders`, {
+        params,
+      }) as { data: any[], totalCount: number }
+      orders.value = res.data // veya API'den dönen veri
+      return { totalCount: res.totalCount }
+    }
+    catch (err: any) {
+      error.value = err?.response?.data || err.message
+    }
+    finally {
+      isLoading.value = false
+    }
   }
-}
 
   async function fetchOrderDetail(orderId: string | number) {
     isLoading.value = true
@@ -118,18 +114,65 @@ export const useOrderStore = defineStore('order', () => {
               id: item.id,
               name: item.name,
               quantity: item.quantity,
-              price: item.price
+              price: item.price,
             }))
-          : []
+          : [],
       }
       console.log('siparişin ürünleri', order.value.items)
-    } catch (err: any) {
+    }
+    catch (err: any) {
       error.value = err?.response?.data || err.message
       throw error.value
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
 
-  return { fetchOrders, orders, createOrderWithDetails, isLoading, error, fetchOrderDetail, order}
+  // Her masa için en son siparişleri çeken yeni fonksiyon
+  async function fetchLastOrdersPerTable({ start = 0, limit = 5 } = {}) {
+    isLoading.value = true
+    error.value = null
+    try {
+      const params: any = { start, limit }
+      const res = await $fetch(`${baseUrl}/Orders/last-orders-per-table`, {
+        params,
+      }) as { data: any[], totalCount: number }
+      orders.value = (res.data || []).map((order: any) => ({
+        uid: order.uid,
+        tableId: order.tableID,
+        orderDate: order.orderDate,
+        totalPrice: order.totalPrice,
+        status: order.status,
+        waiterId: order.waiterID,
+        note: order.note,
+        items: Array.isArray(order.items)
+          ? order.items.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+            }))
+          : [],
+      })) as Order[]
+      return { totalCount: res.totalCount }
+    }
+    catch (err: any) {
+      error.value = err?.response?.data || err.message
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
+
+  return {
+    fetchOrders,
+    fetchLastOrdersPerTable, // yeni fonksiyonu export et
+    orders,
+    createOrderWithDetails,
+    isLoading,
+    error,
+    fetchOrderDetail,
+    order,
+  }
 })

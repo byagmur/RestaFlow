@@ -2,29 +2,28 @@
 import type { Order } from '@/types'
 import { computed, onMounted, ref, watch } from 'vue'
 import WeeklyOrderChart from '@/components/charts/WeeklyOrderChart.vue'
+import OrderDetailCard from '@/components/order/detailCard.vue'
 import { useOrderStore } from '@/stores/orderStore'
 import TotalEarningsProgress from '~/components/charts/TotalEarningsProgress.vue'
 import { useAuthStore } from '~/stores/authStore'
-import OrderDetailCard from '@/components/order/detailCard.vue'
 
-const page = ref(1)
-const pageSize = 7
+const page = ref<number>(1)
+const pageSize = ref(5)
 
 const authStore = useAuthStore()
 const orderStore = useOrderStore()
 const Loader = defineAsyncComponent(() => import('~/components/ui/loader.vue'))
 const weeklyTarget = ref(10000)
 
-const totalOrders = ref(0) // Toplam sipariş sayısı (backend'den dönmeli!)
+const totalOrders = ref(0)
 
-const start = computed(() => (page.value - 1) * pageSize)
+const start = computed(() => page.value - 1)
 
 async function loadOrders() {
-  const params: any = { start: start.value, limit: pageSize }
-  if (authStore.userInfo.role === 'Garson') {
-    params.waiterID = Number(authStore.userInfo.id)
-  }
-  const result = await orderStore.fetchOrders(params)
+  const params: any = { start: start.value, limit: pageSize.value }
+  // Sadece en son siparişler için yeni fonksiyonu kullan
+  const result = await orderStore.fetchLastOrdersPerTable(params)
+  console.log('-------------------', params, result)
   if (result && typeof result.totalCount === 'number') {
     totalOrders.value = result.totalCount
   }
@@ -33,11 +32,11 @@ async function loadOrders() {
 onMounted(async () => {
   authStore.loadUserInfo()
   loadOrders()
-
 })
 
 watch(page, async () => {
   await loadOrders()
+  console.log('Sayfa değişti:', page.value)
 })
 
 definePageMeta({
@@ -45,13 +44,6 @@ definePageMeta({
   ssr: false, // Sadece istemci tarafında render edilir
 })
 
-// const activeOrders = computed<Order[]>(() =>
-//   (orderStore.orders as Order[])
-//     .slice()
-//     .sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()),
-// )
-
-// Kullanıcının rolüne göre filtrele
 const filteredOrders = computed<Order[]>(() => {
   return (orderStore.orders as Order[])
     .slice()
@@ -84,26 +76,40 @@ console.log('filtrelenmiş siparişler---:', filteredOrders.value)
   <NuxtLayout>
     <template #content>
       <div v-if="isUserLoaded" class="space-y-6 px-4 sm:px-0">
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
-
           <div class="flex flex-col w-full h-full">
-            <RecentOrdersCard :orders="filteredOrders" :total-orders="totalOrders" :page="page" :page-size="pageSize"
-              @update:page="val => page = val" @order-click="openOrderDetail" />
+            <RecentOrdersCard
+              :orders="orderStore.orders"
+              :total-orders="totalOrders"
+              :page="page"
+              :page-size="pageSize"
+              @order-click="openOrderDetail"
+            />
+            <BasePagination
+              v-if="totalOrders > pageSize"
+              v-model="page"
+              :total="totalOrders"
+              :page-size="pageSize"
+            />
           </div>
 
           <div class="flex flex-col gap-6 w-full h-full">
-            <div class="bg-white shadow-md rounded-2xl p-4 sm:p-6 opacity-0 animate-fade-in w-full"
-              style="animation-delay: 0.5s">
+            <div
+              class="bg-white shadow-md rounded-2xl p-4 sm:p-6 opacity-0 animate-fade-in w-full"
+              style="animation-delay: 0.5s"
+            >
               <h2 class="text-lg sm:text-lg font-bold text-gray-800 mb-4 sm:mb-6">
                 Haftalık Sipariş Sayısı
               </h2>
               <WeeklyOrderChart :orders="filteredOrders" />
             </div>
-            <TotalEarningsProgress :orders="filteredOrders" :weekly-target="weeklyTarget"
-              @update:weeklyTarget="weeklyTarget = $event" class="w-full" />
+            <TotalEarningsProgress
+              :orders="filteredOrders" :weekly-target="weeklyTarget"
+              class="w-full" @update:weekly-target="weeklyTarget = $event"
+            />
           </div>
         </div>
+
       </div>
       <div v-else class="flex items-center justify-center min-h-screen pb-60 flex-col">
         <Loader />

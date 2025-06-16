@@ -5,9 +5,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   modules: [
+    '@nuxt/ui',
     '@nuxt/fonts',
     '@nuxt/icon',
-    '@nuxt/ui',
     '@pinia/nuxt',
     'nuxt-booster',
     '@nuxt/image',
@@ -48,6 +48,7 @@ export default defineNuxtConfig({
     //   middleware: ['auth'],
     // },
   },
+  ui: {},
   app: {
     head: {
       title: 'RestaFlow - Restoran Yönetiminde Akıllı Çözüm',
@@ -59,9 +60,9 @@ export default defineNuxtConfig({
       ],
     },
   },
-  devServer: {
-    port: 3000, // Geliştirme sunucusu için port numarası
-    host: '0.0.0.0',
-  },
+  // devServer: {
+   // port: 3000, // Geliştirme sunucusu için port numarası
+   // host: '0.0.0.0',
+  //},
 
 })
