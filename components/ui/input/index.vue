@@ -1,44 +1,26 @@
-<!-- CustomInput.vue -->
-<script setup>
-defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: '',
-  },
-  type: {
-    type: String,
-    default: 'text',
-  },
-  placeholder: {
-    type: String,
-    default: '',
-  },
-  variant: {
-    type: String,
-    default: 'none',
-  },
-  required: {
-    type: Boolean,
-    default: false,
-  },
-  // Ek proplar ekleyebilirsiniz
-  class: {
-    type: String,
-    default: '',
-  },
-})
+<script setup lang="ts">
+import { Icon } from '@iconify/vue'
 
+const props = defineProps<{
+  modelValue: string
+  placeholder?: string
+  icon?: string // Örn: 'mdi:table'
+}>()
 const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <UInput
-    :value="modelValue"
-    :type="type"
-    :placeholder="placeholder"
-    :variant="variant"
-    :class="['!custom-input w-full border-b !border-gray-300 transition-colors py-2', class]"
-    :required="required"
-    @input="emit('update:modelValue', $event.target.value)"
-  />
+  <div class="relative flex items-center w-45">
+    <span v-if="icon" class="absolute left-3 flex items-center pointer-events-none text-gray-400">
+      <Icon :icon="icon" class="w-5 h-5" />
+    </span>
+    <input
+      :value="props.modelValue"
+      @input="emit('update:modelValue', $event.target.value)"
+      :placeholder="props.placeholder || 'Arama...'"
+      type="text"
+      class="bg-gray-100 shadow-lg rounded-2xl px-3 py-2 text-md focus:outline-none focus:ring-2 focus:ring-gray-300 w-full"
+      :class="{ 'pl-10': props.icon }"
+    >
+  </div>
 </template>

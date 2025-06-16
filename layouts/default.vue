@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuthStore } from '~/stores/authStore'
 
 const pageTitle = ref('')
@@ -20,7 +20,8 @@ onMounted(() => {
 <template>
   <div v-if="!isLoading" class="min-h-screen bg-gray-50 flex">
     <div
-      class="!sticky top-0 w-24 bg-white/90 backdrop-blur-sm shadow-md flex flex-col py-6 h-screen border-r border-gray-200">
+      class="!sticky top-0 w-24 bg-white/90 backdrop-blur-sm shadow-md flex flex-col py-6 h-screen border-r border-gray-200"
+    >
       <nav class="flex flex-col justify-between flex-grow space-y-6">
         <div class="flex justify-center mb-4">
           <img src="/public/img/restaFlowIcon.png" alt="logo" class="w-24 h-24 p-2 rounded-xl">
@@ -35,9 +36,11 @@ onMounted(() => {
         </div>
 
         <div class="mt-auto opacity-0 animate-fade-in" style="animation-delay: 0.2s">
-          <UButton variant="none" to="/login"
+          <UButton
+            variant="none" to="/login"
             class="p-2 rounded-xl hover:bg-gray-100 mx-auto flex justify-center transition-colors duration-200"
-            @click="authStore.logout()">
+            @click="authStore.logout()"
+          >
             <Icon name="heroicons:arrow-right-on-rectangle-20-solid" class="!w-7 !h-7 text-gray-600" />
           </UButton>
         </div>
@@ -46,9 +49,11 @@ onMounted(() => {
 
     <div class="flex-1 p-8 inter-tight">
       <div class="flex justify-between items-center mb-8 opacity-0 animate-fade-in" style="animation-delay: 0.3s">
-        <h2 :ui="{ base: '!text-left' }"
-          class="flex text-2xl font-bold text-gray-800 mb-6 opacity-0 animate-fade-in justify-start  "
-          style="animation-delay: 0.2s">
+        <h2
+          :ui="{ base: '!text-left' }"
+          class="flex mt-8 ml-4 text-2xl font-bold text-gray-800 mb-6 opacity-0 animate-fade-in justify-start  "
+          style="animation-delay: 0.2s"
+        >
           {{ 'RestaFlow' }} {{ authStore.userInfo.role === 'Yönetici' ? 'Yönetici Paneline' : 'Garson Paneline' }}
           Hoşgeldiniz!
         </h2>

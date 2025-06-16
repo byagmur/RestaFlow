@@ -76,7 +76,7 @@ async function onSubmit(event: Event) {
               type="text"
               placeholder="Kullanıcı adınızı girin"
               variant="none"
-              class="!custom-input w-full border-b !border-gray-300 focus:border-blue-700 transition-colors py-2 !text-gray-950"
+              class="!custom-input w-full border-b !border-gray-300 !bg-transparent focus:border-blue-700 transition-colors py-2 !text-gray-950"
               required
               :ui="{ base: '!bg-white text-gray-950 placeholder:text-gray-400' }"
             />
@@ -89,7 +89,7 @@ async function onSubmit(event: Event) {
               type="password"
               placeholder="Şifrenizi girin"
               variant="none"
-              class="!custom-input w-full border-b !border-gray-300 focus:border-blue-700 transition-colors py-2 !text-gray-950"
+              class="!custom-input w-full border-b !border-gray-300 focus:border-blue-700 !bg-transparent transition-colors py-2 !text-gray-950"
               required
             />
           </div>
