@@ -3,11 +3,11 @@ import type { Order } from '@/types'
 import { computed, onMounted, ref } from 'vue'
 import WeeklyOrderChart from '@/components/charts/WeeklyOrderChart.vue'
 import OrderDetailCard from '@/components/order/detailCard.vue'
-import { useOrderStore } from '@/stores/orderStore'
+import { useOrderStore } from '~/stores/order/orderStore'
 import TotalEarningsProgress from '~/components/charts/TotalEarningsProgress.vue'
 import BasePagination from '~/components/ui/BasePagination.vue'
 import DataRefreshProvider from '@/components/common/DataRefreshProvider.vue'
-import { useAuthStore } from '~/stores/authStore'
+import { useAuthStore } from '~/stores/auth/authStore'
 
 const page = ref<number>(1)
 const pageSize = ref(5)
@@ -127,6 +127,23 @@ function closeOrderDetail() {
   showOrderDetail.value = false
   selectedOrder.value = null
 }
+
+async function handleOrderUpdated() {
+  console.log('Sipariş güncellendi, veriler yenileniyor...')
+  
+  if (selectedOrder.value) {
+    await orderStore.fetchOrderDetail(selectedOrder.value.uid)
+    selectedOrder.value = { ...orderStore.order }
+  }
+  
+  const params: any = { start: 0, limit: 50 }
+  if (authStore.userInfo.role === 'Garson') {
+    params.waiterID = authStore.userInfo.id
+  }
+  await orderStore.fetchLastOrdersPerTable(params)
+  
+  console.log(' Veriler yenilendi')
+}
 </script>
 
 <template defer="true">
@@ -188,6 +205,7 @@ function closeOrderDetail() {
         v-if="showOrderDetail && selectedOrder"
         :order="selectedOrder"
         @close="closeOrderDetail"
+        @updated="handleOrderUpdated"
       />
     </template>
   </NuxtLayout>

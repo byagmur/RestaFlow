@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
-import { useAuthStore } from '~/stores/authStore'
+import { useAuthStore } from '~/stores/auth/authStore'
 
 const pageTitle = ref('')
 const isLoading = ref(true)
@@ -30,7 +30,7 @@ onMounted(() => {
         <div class="flex flex-col space-y-6 opacity-0 animate-fade-in p-2" style="animation-delay: 0.1s">
           <menu_item to="/" title="Anasayfa" icon="heroicons:home-20-solid" />
           <menu_item to="/order/add_order" title="Sipariş Oluştur" icon="heroicons:clipboard-document-list-20-solid" />
-          <menu_item to="/menu" title="Menü" icon="heroicons:book-open" />
+          <!-- <menu_item to="/order/orders" title="Siparişleri Yönet" icon="mingcute:edit-4-line" /> -->
           <!-- <menu_item to="/dashboard" title="Dashboard" icon="heroicons:chart-bar-20-solid" /> -->
           <!-- <menu_item to="/settings" title="Ayarlar" icon="heroicons:cog-6-tooth-20-solid" /> -->
         </div>

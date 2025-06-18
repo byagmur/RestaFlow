@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Order } from '@/types'
 import { computed, ref, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth/authStore'
 
 const props = defineProps<{
   orders: Order[]

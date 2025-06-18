@@ -2,6 +2,7 @@ import type { ServiceResponse } from '~/types'
 import { defineStore } from 'pinia'
 import { z } from 'zod'
 
+
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter()
   const config = useRuntimeConfig()

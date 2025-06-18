@@ -61,7 +61,7 @@ export const useAutoRefresh = (
       refresh(true) // Silent refresh
     }, interval)
 
-    console.log(`🔄 Otomatik yenileme başlatıldı (${interval/1000}s)`)
+    // console.log(`Otomatik yenileme başlatıldı (${interval/1000}s)`)
   }
 
 
@@ -71,7 +71,7 @@ export const useAutoRefresh = (
       refreshInterval.value = null
     }
     isActive.value = false
-    console.log('⏹️ Otomatik yenileme durduruldu')
+    // console.log('Otomatik yenileme durduruldu')
   }
 
 
@@ -97,8 +97,7 @@ export const useAutoRefresh = (
     stop()
   })
 
-  // İlk başlatma
-  if (immediate && process.client) {
+  if (immediate && isClient) {
     start()
   }
 

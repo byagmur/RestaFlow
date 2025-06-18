@@ -19,10 +19,13 @@ export interface ServiceResponse {
 
 
 export interface OrderItem {
-  id?: number
+  id?: string | number
+  productId?: string | number  // Ürün referansı
+  no?: string | number        // Ürün kodu
   name: string
-  quantity?: number
-  price?: number
+  price: number               // Required olmalı
+  quantity: number            // Required olmalı  
+  total?: number   
 }
 
 export interface Order {
@@ -35,4 +38,12 @@ export interface Order {
   note?: string
   waiterName?: string
   items?: OrderItem[]
+}
+
+export interface ProductData {
+  id: string | number
+  no?: string | number
+  name: string
+  price: number
+  quantity: number
 }
