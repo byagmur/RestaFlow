@@ -1,11 +1,3 @@
-export interface task {
-  id: number
-  todo: string
-  completed: boolean
-  userId: number
-
-}
-
 export interface ServiceResponse {
   success: boolean
   token?: string
