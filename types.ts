@@ -47,3 +47,17 @@ export interface ProductData {
   price: number
   quantity: number
 }
+
+export interface MoveOrderRequest {
+  orderId: number
+  targetTableId: number
+  employeeId: number
+}
+
+export interface MoveOrderResponse {
+  message: string
+  success: boolean
+  orderId: number
+  oldTableId?: number
+  newTableId: number
+}

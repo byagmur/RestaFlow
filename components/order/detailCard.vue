@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { OrderItem } from '~/types'
+import type { MoveOrderResponse, OrderItem } from '~/types'
 import { computed, ref, watch } from 'vue'
+import CancelOrderModal from '@/components/ui/modal/CancelOrderModal.vue'
+import MoveTableModal from '@/components/ui/modal/MoveTableModal.vue'
 import ProductSelector from '@/components/ui/selector/ProductSelector.vue'
 import { useOrderStore } from '@/stores/order/orderStore'
 
@@ -15,6 +17,12 @@ const error = ref('')
 const isEditing = ref(false)
 const editableItems = ref<OrderItem[]>([])
 const originalItems = ref<OrderItem[]>([]) // Orijinal ürünleri sakla
+
+// Modal state'leri
+const showCancelModal = ref(false)
+const cancelLoading = ref(false)
+const showMoveTableModal = ref(false)
+const moveTableLoading = ref(false)
 
 watch(() => isEditing.value, (newVal) => {
   if (newVal && props.order?.items) {
@@ -196,6 +204,87 @@ function addNewProduct(productData: any) {
     console.log('Yeni ürün eklendi:', productData)
   }
 }
+
+async function handleCancelOrder(reason: string) {
+  cancelLoading.value = true
+  error.value = ''
+  success.value = false
+
+  try {
+    console.log('Sipariş iptal ediliyor:', { orderId: props.order.uid, reason })
+
+    // Mevcut updateOrderStatus fonksiyonunu kullanarak durumu 'İptal Edildi' yap
+    await orderStore.updateOrderStatus(Number(props.order.uid), 'İptal Edildi')
+
+    success.value = true
+    showCancelModal.value = false
+    emit('updated')
+
+    // Başarılı iptal sonrası modal'ı kapat
+    setTimeout(() => {
+      success.value = false
+      emit('close')
+    }, 2000)
+  }
+  catch (e: any) {
+    console.error('Sipariş iptal hatası:', e)
+    error.value = e || 'Sipariş iptal edilirken hata oluştu'
+  }
+  finally {
+    cancelLoading.value = false
+  }
+}
+
+// Masa taşıma işlemi - Type safety ile
+async function handleMoveTable(newTableId: string | number) {
+  moveTableLoading.value = true
+  error.value = ''
+  success.value = false
+
+  try {
+    console.log('Masa taşıma parametreleri:', {
+      orderId: props.order.uid,
+      currentTableId: props.order.tableId,
+      newTableId,
+    })
+
+    // MoveOrderResponse type'ı ile response'u al
+    const result: MoveOrderResponse = await orderStore.moveOrderToTable(props.order.uid, newTableId)
+
+    console.log('Masa taşıma sonucu:', result)
+
+    success.value = true
+    showMoveTableModal.value = false
+    emit('updated')
+
+    // Başarılı taşıma sonrası modal'ı kapat
+    setTimeout(() => {
+      success.value = false
+      emit('close')
+    }, 2000)
+  }
+  catch (e: any) {
+    console.error('Masa taşıma hatası:', e)
+    error.value = e.message || 'Masa taşınırken hata oluştu'
+  }
+  finally {
+    moveTableLoading.value = false
+  }
+}
+
+// Move table modal'ı kapat
+function closeMoveTableModal() {
+  if (!moveTableLoading.value) {
+    showMoveTableModal.value = false
+  }
+}
+
+// Cancel modal'ı kapat
+function closeCancelModal() {
+  if (!cancelLoading.value) {
+    showCancelModal.value = false
+  }
+}
 </script>
 
 <template>
@@ -212,6 +301,7 @@ function addNewProduct(productData: any) {
             #{{ order.uid }} Sipariş Detayları
           </h2>
           <div class="flex items-center gap-2">
+            <!-- Düzenle butonu -->
             <UButton
               v-if="!isEditing && ['Açıldı', 'Hazırlanıyor', 'Beklemede'].includes(order.status)"
               color="blue"
@@ -223,12 +313,38 @@ function addNewProduct(productData: any) {
               Düzenle
             </UButton>
 
+            <!-- Masayı taşı butonu -->
+            <UButton
+              v-if="!isEditing && ['Açıldı', 'Hazırlanıyor', 'Beklemede', 'Tamamlandı'].includes(order.status)"
+              color="green"
+              variant="outline"
+              class="!text-green-600 text-lg rounded-lg px-4 py-2 transition-colors hover:!bg-green-200 bg-green-100"
+              :loading="moveTableLoading"
+              @click="showMoveTableModal = true"
+            >
+              <Icon name="heroicons:arrows-right-left" class="w-4 h-4 mr-1" />
+              Masayı taşı
+            </UButton>
+
+            <!-- İptal et butonu -->
+            <UButton
+              v-if="!isEditing && ['Açıldı', 'Hazırlanıyor', 'Beklemede'].includes(order.status)"
+              color="red"
+              variant="outline"
+              class="!text-red-600 text-lg rounded-lg px-4 py-2 transition-colors hover:!bg-red-200 bg-red-100"
+              :loading="cancelLoading"
+              @click="showCancelModal = true"
+            >
+              <Icon name="heroicons:x-circle" class="w-4 h-4 mr-1" />
+              İptal Et
+            </UButton>
+
             <!-- Servis et butonu -->
             <UButton
-              v-if="!isEditing"
+              v-if="!isEditing && order.status !== 'İptal Edildi'"
               :color="order.status === 'Tamamlandı' ? 'primary' : 'gray'"
               class="!text-white text-lg rounded-lg px-4 py-2 transition-colors"
-              :class=" [
+              :class="[
                 order.status === 'Tamamlandı'
                   ? '!bg-orange-400 hover:!bg-orange-500 cursor-pointer'
                   : '!bg-gray-300 cursor-not-allowed !text-gray-500',
@@ -275,7 +391,12 @@ function addNewProduct(productData: any) {
         <!-- Bildirim mesajları -->
         <div v-if="success || error" class="flex justify-center px-6 pt-2">
           <div v-if="success" class="text-green-600 bg-green-50 px-3 py-1 rounded">
-            {{ isEditing ? 'Sipariş başarıyla güncellendi!' : 'Sipariş durumu güncellendi!' }}
+            {{
+              showMoveTableModal ? 'Sipariş başarıyla taşındı!'
+              : order.status === 'İptal Edildi' ? 'Sipariş başarıyla iptal edildi!'
+                : isEditing ? 'Sipariş başarıyla güncellendi!'
+                  : 'Sipariş durumu güncellendi!'
+            }}
           </div>
           <div v-if="error" class="text-red-600 bg-red-50 px-3 py-1 rounded">
             {{ error }}
@@ -283,14 +404,24 @@ function addNewProduct(productData: any) {
         </div>
       </template>
 
+      <!-- Sipariş bilgileri -->
       <div class="px-6 pb-4 space-y-3 text-gray-700 text-lg leading-relaxed">
         <div>Masa: {{ order.tableId }}</div>
         <div>Tarih: {{ formatDate(order.orderDate) }}</div>
-        <div>Durum: {{ order.status }}</div>
         <div>
-          Tutar:
-          {{ isEditing ? editedTotal.toFixed(2) : order.totalPrice }}₺
+          Durum:
+          <span
+            :class="{
+              'text-red-600 font-semibold': order.status === 'İptal Edildi',
+              'text-green-600 font-semibold': order.status === 'Servis Edildi',
+              'text-orange-600 font-semibold': order.status === 'Tamamlandı',
+              'text-blue-600 font-semibold': order.status === 'Hazırlanıyor',
+            }"
+          >
+            {{ order.status }}
+          </span>
         </div>
+        <div>Toplam: {{ order.totalPrice }}₺</div>
         <div v-if="order.note">
           Not: {{ order.note }}
         </div>
@@ -407,5 +538,24 @@ function addNewProduct(productData: any) {
         </div>
       </div>
     </UCard>
+
+    <!-- Cancel Order Modal -->
+    <CancelOrderModal
+      :show="showCancelModal"
+      :order-id="order.uid"
+      :loading="cancelLoading"
+      @close="closeCancelModal"
+      @confirm="handleCancelOrder"
+    />
+
+    <!-- Move Table Modal -->
+    <MoveTableModal
+      :show="showMoveTableModal"
+      :order-id="order.uid"
+      :current-table-id="order.tableId"
+      :loading="moveTableLoading"
+      @close="closeMoveTableModal"
+      @confirm="handleMoveTable"
+    />
   </div>
 </template>

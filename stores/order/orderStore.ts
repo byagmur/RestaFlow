@@ -1,4 +1,4 @@
-import type { Order } from '~/types'
+import type { Order, MoveOrderRequest, MoveOrderResponse } from '~/types'
 import axios from 'axios'
 import { defineStore } from 'pinia'
 import { useAuthStore } from '~/stores/auth/authStore'
@@ -20,17 +20,21 @@ export const useOrderStore = defineStore('order', () => {
     orderStatus,
     employeeId,
     movementDate,
+    targetTableId, // Yeni parametre eklendi
+    //
   }: {
     orderId: number
     orderStatus: string
     employeeId: number
     movementDate?: string
+    targetTableId?: number // Yeni parametre eklendi
   }) {
     await axios.post(`${baseUrl}/Orders/movement`, {
       orderId,
       orderStatus,
       employeeId,
       movementDate: movementDate || new Date().toISOString(),
+      targetTableId, // Yeni parametre eklendi
     })
   }
 
@@ -82,6 +86,8 @@ export const useOrderStore = defineStore('order', () => {
         orderId: ConstorderId,
         orderStatus: orderData.status,
         employeeId: Number(waiterID),
+        movementDate: new Date().toISOString(),
+        targetTableId: orderData.tableID ? Number(orderData.tableID) : undefined,
       })
       // console.log('Hareket kaydı eklendi.')
 
@@ -107,12 +113,12 @@ export const useOrderStore = defineStore('order', () => {
         params,
       }) as { data: any[], totalCount: number }
       orders.value = res.data
-      // console.log('fetchOrders response:', res) 
+      // console.log('fetchOrders response:', res)
       return { totalCount: res.totalCount }
     }
     catch (err: any) {
       error.value = err?.response?.data || err.message
-      // console.error('fetchOrders error:', err) 
+      // console.error('fetchOrders error:', err)
     }
     finally {
       isLoading.value = false
@@ -161,7 +167,7 @@ export const useOrderStore = defineStore('order', () => {
       if (waiterID)
         params.waiterID = waiterID
 
-      // console.log('fetchLastOrdersPerTable params:', params) 
+      // console.log('fetchLastOrdersPerTable params:', params)
 
       const res = await $fetch(`${baseUrl}/Orders/last-orders-per-table`, {
         params,
@@ -190,8 +196,8 @@ export const useOrderStore = defineStore('order', () => {
       // TotalOrderCount'u güncelle - Bu satır eklendi!
       totalOrderCount.value = res.totalCount || 0
 
-      // console.log('Set totalOrderCount to:', totalOrderCount.value) 
-      // console.log('pagedOrders length:', pagedOrders.value.length) 
+      // console.log('Set totalOrderCount to:', totalOrderCount.value)
+      // console.log('pagedOrders length:', pagedOrders.value.length)
 
       return { totalCount: res.totalCount }
     }
@@ -228,6 +234,7 @@ export const useOrderStore = defineStore('order', () => {
         orderStatus: status,
         employeeId: useAuthStore().userInfo.id,
         movementDate: new Date().toISOString(),
+        targetTableId: order.value?.tableId ? Number(order.value.tableId) : undefined,
       })
     }
     catch (err: any) {
@@ -239,150 +246,205 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  /**
+   * Sipariş ürünlerini günceller (Geliştirilmiş hata yakalama ile)
+   */
+  async function updateOrderItems(orderId: string | number, newItems: any[], originalItems: any[] = []) {
+    isLoading.value = true
+    error.value = null
 
+    try {
+      console.log('🔍 updateOrderItems başlıyor:', { orderId, newItems, originalItems })
 
- /**
- * Sipariş ürünlerini günceller (Geliştirilmiş hata yakalama ile)
- */
-async function updateOrderItems(orderId: string | number, newItems: any[], originalItems: any[] = []) {
-  isLoading.value = true
-  error.value = null
-  
-  try {
-    console.log('🔍 updateOrderItems başlıyor:', { orderId, newItems, originalItems })
-    
-    // Veri validasyonu
-    if (!orderId) {
-      throw new Error('Order ID gerekli')
-    }
-    
-    if (!Array.isArray(newItems)) {
-      throw new TypeError('Yeni ürünler array olmalı')
-    }
-    
-    if (!Array.isArray(originalItems)) {
-      throw new TypeError('Orijinal ürünler array olmalı')
-    }
-    
-    // baseUrl kontrolü
-    if (!baseUrl) {
-      throw new Error('API base URL tanımlı değil')
-    }
-    
-    console.log('✅ Validasyonlar başarılı, API işlemleri başlıyor...')
-    
-    // Eski ürünlerin listesi
-    const originalMap = new Map()
-    originalItems.forEach(item => {
-      const key = item.id || item.productId
-      if (key) {
-        originalMap.set(key, item)
+      // Veri validasyonu
+      if (!orderId) {
+        throw new Error('Order ID gerekli')
       }
-    })
-    
-    const newMap = new Map()
-    newItems.forEach(item => {
-      const key = item.id || item.productId
-      if (key) {
-        newMap.set(key, item)
+
+      if (!Array.isArray(newItems)) {
+        throw new TypeError('Yeni ürünler array olmalı')
       }
-    })
-    
-    console.log('🔍 Maps oluşturuldu:', {
-      originalMap: Array.from(originalMap.entries()),
-      newMap: Array.from(newMap.entries())
-    })
-    
-    // 1. Silinen ürünleri bul ve sil
-    for (const [productId] of originalMap) {
-      if (!newMap.has(productId)) {
-        console.log('🗑️ Ürün siliniyor:', { orderId, productId })
-        
-        try {
-          const deleteResponse = await $fetch(`${baseUrl}/Orders/detail`, {
-            method: 'DELETE',
-            body: {
-              orderId: Number(orderId),
-              productId: Number(productId)
-            }
-          })
-          console.log('✅ Ürün silindi:', { productId, response: deleteResponse })
-        } catch (deleteError: any) {
-          console.error('❌ Ürün silme hatası:', deleteError)
-          throw new Error(`Ürün silinirken hata: ${deleteError.message}`)
+
+      if (!Array.isArray(originalItems)) {
+        throw new TypeError('Orijinal ürünler array olmalı')
+      }
+
+      // baseUrl kontrolü
+      if (!baseUrl) {
+        throw new Error('API base URL tanımlı değil')
+      }
+
+      console.log('✅ Validasyonlar başarılı, API işlemleri başlıyor...')
+
+      // Eski ürünlerin listesi
+      const originalMap = new Map()
+      originalItems.forEach((item) => {
+        const key = item.id || item.productId
+        if (key) {
+          originalMap.set(key, item)
+        }
+      })
+
+      const newMap = new Map()
+      newItems.forEach((item) => {
+        const key = item.id || item.productId
+        if (key) {
+          newMap.set(key, item)
+        }
+      })
+
+      console.log('🔍 Maps oluşturuldu:', {
+        originalMap: Array.from(originalMap.entries()),
+        newMap: Array.from(newMap.entries()),
+      })
+
+      // 1. Silinen ürünleri bul ve sil
+      for (const [productId] of originalMap) {
+        if (!newMap.has(productId)) {
+          console.log('🗑️ Ürün siliniyor:', { orderId, productId })
+
+          try {
+            const deleteResponse = await $fetch(`${baseUrl}/Orders/detail`, {
+              method: 'DELETE',
+              body: {
+                orderId: Number(orderId),
+                productId: Number(productId),
+              },
+            })
+            console.log('✅ Ürün silindi:', { productId, response: deleteResponse })
+          }
+          catch (deleteError: any) {
+            console.error('❌ Ürün silme hatası:', deleteError)
+            throw new Error(`Ürün silinirken hata: ${deleteError.message}`)
+          }
         }
       }
-    }
-    
-    // 2. Yeni eklenen veya güncellenen ürünleri işle
-    for (const newItem of newItems) {
-      const productId = newItem.id || newItem.productId
-      const originalItem = originalMap.get(productId)
-      
-      if (!originalItem) {
+
+      // 2. Yeni eklenen veya güncellenen ürünleri işle
+      for (const newItem of newItems) {
+        const productId = newItem.id || newItem.productId
+        const originalItem = originalMap.get(productId)
+
+        if (!originalItem) {
         // Yeni ürün ekleme
-        console.log('➕ Yeni ürün ekleniyor:', newItem)
-        
-        try {
-          const addResponse = await $fetch(`${baseUrl}/Orders/detail`, {
-            method: 'POST',
-            body: {
-              orderId: Number(orderId),
-              productId: String(productId),
-              quantity: newItem.quantity,
-              insertDate: new Date().toISOString()
-            }
-          })
-          console.log('✅ Yeni ürün eklendi:', { productId, response: addResponse })
-        } catch (addError: any) {
-          console.error('❌ Ürün ekleme hatası:', addError)
-          throw new Error(`Ürün eklenirken hata: ${addError.message}`)
+          console.log('➕ Yeni ürün ekleniyor:', newItem)
+
+          try {
+            const addResponse = await $fetch(`${baseUrl}/Orders/detail`, {
+              method: 'POST',
+              body: {
+                orderId: Number(orderId),
+                productId: String(productId),
+                quantity: newItem.quantity,
+                insertDate: new Date().toISOString(),
+              },
+            })
+            console.log('✅ Yeni ürün eklendi:', { productId, response: addResponse })
+          }
+          catch (addError: any) {
+            console.error('❌ Ürün ekleme hatası:', addError)
+            throw new Error(`Ürün eklenirken hata: ${addError.message}`)
+          }
         }
-        
-      } else if (originalItem.quantity !== newItem.quantity) {
+        else if (originalItem.quantity !== newItem.quantity) {
         // Mevcut ürün miktarı güncelleme
-        console.log('📝 Ürün miktarı güncelleniyor:', { 
-          productId, 
-          eskiMiktar: originalItem.quantity, 
-          yeniMiktar: newItem.quantity 
-        })
-        
-        try {
-          const updateResponse = await $fetch(`${baseUrl}/Orders/detail`, {
-            method: 'PUT',
-            body: {
-              orderId: Number(orderId),
-              productId: String(productId),
-              quantity: newItem.quantity
-            }
+          console.log('📝 Ürün miktarı güncelleniyor:', {
+            productId,
+            eskiMiktar: originalItem.quantity,
+            yeniMiktar: newItem.quantity,
           })
-          console.log('✅ Ürün miktarı güncellendi:', { productId, response: updateResponse })
-        } catch (updateError: any) {
-          console.error('❌ Ürün güncelleme hatası:', updateError)
-          throw new Error(`Ürün güncellenirken hata: ${updateError.message}`)
+
+          try {
+            const updateResponse = await $fetch(`${baseUrl}/Orders/detail`, {
+              method: 'PUT',
+              body: {
+                orderId: Number(orderId),
+                productId: String(productId),
+                quantity: newItem.quantity,
+              },
+            })
+            console.log('✅ Ürün miktarı güncellendi:', { productId, response: updateResponse })
+          }
+          catch (updateError: any) {
+            console.error('❌ Ürün güncelleme hatası:', updateError)
+            throw new Error(`Ürün güncellenirken hata: ${updateError.message}`)
+          }
         }
       }
-    }
-    
-    // 3. Sipariş detayını yeniden yükle
-    console.log('🔄 Sipariş detayı yeniden yükleniyor...')
-    await fetchOrderDetail(orderId)
-    
-    console.log('✅ Tüm sipariş ürün işlemleri başarıyla tamamlandı')
-    
-  } catch (err: any) {
-    console.error('❌ updateOrderItems genel hatası:', err)
-    const errorMessage = err?.data?.message || err?.response?.data?.message || err.message || 'Bilinmeyen hata'
-    error.value = errorMessage
-    throw new Error(errorMessage)
-  } finally {
-    isLoading.value = false
-  }
-}
 
+      // 3. Sipariş detayını yeniden yükle
+      console.log('🔄 Sipariş detayı yeniden yükleniyor...')
+      await fetchOrderDetail(orderId)
+
+      console.log('✅ Tüm sipariş ürün işlemleri başarıyla tamamlandı')
+    }
+    catch (err: any) {
+      console.error('❌ updateOrderItems genel hatası:', err)
+      const errorMessage = err?.data?.message || err?.response?.data?.message || err.message || 'Bilinmeyen hata'
+      error.value = errorMessage
+      throw new Error(errorMessage)
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Siparişi başka masaya taşır - MoveOrderRequest interface kullanarak
+   */
+  async function moveOrderToTable(orderId: string | number, targetTableId: string | number): Promise<MoveOrderResponse> {
+    isLoading.value = true
+    error.value = null
+    
+    try {
+      console.log('Masa taşıma işlemi başlıyor:', { orderId, targetTableId })
+      
+      const authStore = useAuthStore()
+      
+      // MoveOrderRequest interface'ini kullan
+      const requestData: MoveOrderRequest = {
+        orderId: Number(orderId),
+        targetTableId: Number(targetTableId),
+        employeeId: Number(authStore.userInfo.id)
+      }
+
+      console.log("API'ye gönderilen veri:", requestData)
+
+      // Backend API endpoint'ini düzelt - /Orders/move-order olmalı
+      const response = await axios.post<MoveOrderResponse>(`${baseUrl}/Table/move-order`, requestData)
+
+      console.log('Masa taşıma başarılı:', response.data)
+
+      // Hareket kaydı ekle - targetTableId ile birlikte
+      await addOrderMovement({
+        orderId: Number(orderId),
+        orderStatus: 'Masa Değiştirildi',
+        employeeId: Number(authStore.userInfo.id),
+        targetTableId: Number(targetTableId)
+      })
+
+      // Siparişleri yeniden yükle
+      await fetchOrders()
+
+      return response.data
+    }
+    catch (err: any) {
+      const errorMessage = err?.response?.data?.message || 
+                          err?.response?.data || 
+                          err?.message || 
+                          'Masa taşıma işlemi başarısız oldu.'
+      error.value = errorMessage
+      console.error('Masa taşıma hatası:', err)
+      throw new Error(errorMessage)
+    }
+    finally {
+      isLoading.value = false
+    }
+  }
 
   return {
     fetchOrders,
+    moveOrderToTable,
     fetchLastOrdersPerTable,
     orders,
     pagedOrders,
@@ -394,6 +456,6 @@ async function updateOrderItems(orderId: string | number, newItems: any[], origi
     order,
     updateOrderStatus,
     addOrderMovement,
-    updateOrderItems
+    updateOrderItems,
   }
 })

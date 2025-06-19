@@ -156,6 +156,7 @@ async function handleOrderUpdated() {
         >
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 w-full">
             <!-- Sol taraf: Siparişler -->
+            
             <div class="lg:col-span-3 flex flex-col w-full h-full">
               <RecentOrdersCard
                 :orders="pagedFilteredOrders"
