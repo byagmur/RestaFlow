@@ -3,7 +3,9 @@
 </script>
 
 <template>
-  <NuxtPage />
+  <UApp>
+    <NuxtPage class="bg-layout" />
+  </UApp>
 </template>
 
 <style>
@@ -23,13 +25,13 @@ div {
   font-style: normal;
 } */
 
-/* .bg-layout {
+.bg-layout {
   background-color: #ffffff;
-  background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+  background-image: url('./public/img/cream-dust.png');
   background-position: 0%;
   background-repeat: repeat;
   min-height: 100vh;
-} */
+}
 /*
 .bg-layout::before {
   content: '';

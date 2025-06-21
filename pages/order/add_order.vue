@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useOrderStore } from '~/stores/orderStore'
+import { useOrderStore } from '~/stores/order/orderStore'
 import { useProductStore } from '~/stores/productStore'
 import { useTableStore } from '~/stores/tableStore'
+import { useAuthStore } from '~/stores/auth/authStore'
 
 definePageMeta({
   middleware: 'auth',
