@@ -1,75 +1,113 @@
-# Nuxt Minimal Starter
+# 🍽️ RestaFlow – Restaurant Order & Staff Management System
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+RestaFlow is a full-stack restaurant management system developed to help restaurants manage orders, tables, and staff operations efficiently.
 
-## Setup
+The system includes:
 
-Make sure to install dependencies:
+A Nuxt-based web interface
 
-```bash
-# npm
-npm install
+A fully functional desktop management panel
 
-# pnpm
-pnpm install
+A custom-built backend API
 
-# yarn
-yarn install
+All backend logic and desktop control mechanisms were developed from scratch.
 
-# bun
-bun install
-```
+## 🎯 Project Purpose
 
-## Development Server
+RestaFlow was built to:
 
-Start the development server on `http://localhost:3000`:
+Enable waiters to manage table-based orders quickly
 
-```bash
-# npm
-npm run dev
+Allow chefs to track and update order statuses
 
-# pnpm
-pnpm dev
+Provide administrators full operational control
 
-# yarn
-yarn dev
+Monitor real-time revenue and weekly performance
 
-# bun
-bun run dev
-```
+Manage restaurant staff and table organization efficiently
 
-## Production
+## 🖥️ Desktop Management Panel (Full Control System)
 
-Build the application for production:
+The desktop panel provides complete operational control over:
 
-```bash
-# npm
-npm run build
+👨‍🍳 Staff Management
 
-# pnpm
-pnpm build
+- Waiter management
 
-# yarn
-yarn build
+- Chef management
 
-# bun
-bun run build
-```
+- Role-based structure
 
-Locally preview production build:
+- Staff-related order tracking
 
-```bash
-# npm
-npm run preview
+🪑 Table Management
 
-# pnpm
-pnpm preview
+- Real-time table status (Available / Occupied)
 
-# yarn
-yarn preview
+- Table transfer functionality
 
-# bun
-bun run preview
-```
+- Table-based order history
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+🧾 Order Management
+
+Create, update, cancel orders
+
+Increase/decrease item quantity
+
+Move orders between tables
+
+View detailed invoice (Adisyon) information
+
+ 📊 System Monitoring
+
+Weekly order statistics
+
+Revenue tracking
+
+Target-based performance percentage
+
+Live order updates
+
+The desktop environment is designed to give full control over restaurant workflow and operations.
+
+## 🌐 Web Interface
+
+The web interface was developed using Nuxt and managed with pnpm.
+
+Key Features:
+
+Secure authentication system
+
+Dynamic dashboard
+
+Real-time order list
+
+Category-based product selection (Soup, Main Course, Drinks, Dessert)
+
+Live total calculation
+
+Modern responsive UI
+
+## 🧩 Technologies Used
+Frontend (Web)
+
+* Nuxt
+  
+* Vue 3
+
+## Desktop Panel
+
+Custom-built control interface
+
+Full operational management system
+
+## 📷 Screenshots
+--
+Management Dashboard
+
+Table Selection
+
+Order Creation
+
+Order Details
+
