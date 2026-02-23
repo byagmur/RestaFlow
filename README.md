@@ -101,13 +101,3 @@ Custom-built control interface
 
 Full operational management system
 
-## 📷 Screenshots
---
-Management Dashboard
-
-Table Selection
-
-Order Creation
-
-Order Details
-
