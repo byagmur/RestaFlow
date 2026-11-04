@@ -90,13 +90,11 @@ Modern responsive UI
 
 ## 📸 Screenshots
 
-The Nuxt web interface is shown below (the UI is in Turkish). The screenshots were captured with fabricated demo data served by a throwaway mock API, not a real restaurant database.
+### Sign in
 
-### Sign in and register
+Staff sign in as either a waiter (Garson) or an administrator (Yönetici). Waiters see only the orders they took; administrators see all orders and can set the weekly earnings target.
 
-| Sign in | Register |
-| --- | --- |
-| ![Sign in page](docs/screenshots/login.png) | ![Register page](docs/screenshots/register.png) |
+![Sign in page](docs/screenshots/login.png)
 
 ### Dashboard
 
