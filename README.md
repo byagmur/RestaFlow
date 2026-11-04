@@ -88,6 +88,36 @@ Live total calculation
 
 Modern responsive UI
 
+## 📸 Screenshots
+
+### Sign in
+
+Staff sign in as either a waiter (Garson) or an administrator (Yönetici). Waiters see only the orders they took; administrators see all orders and can set the weekly earnings target.
+
+![Sign in page](docs/screenshots/login.png)
+
+### Dashboard
+
+Latest order per table with status filters, the weekly order chart and the weekly earnings target.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Order details
+
+![Order details](docs/screenshots/order-detail.png)
+
+### Create an order
+
+Pick a table, a category and products; the order summary updates live.
+
+![Create an order](docs/screenshots/create-order.png)
+
+### Desktop panel
+
+The desktop panel opens with a welcome page and a side menu whose pages depend on the signed-in role.
+
+![Desktop panel](docs/screenshots/desktop-home.png)
+
 ## 🧩 Technologies Used
 Frontend (Web)
 

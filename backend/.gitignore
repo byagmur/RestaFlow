@@ -1,0 +1,30 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / IDE
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# NuGet (packages.config restores into ./packages)
+packages/
+*.nupkg
+
+# Secrets and local configuration - never commit these
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings.*.local.json
+*.pfx
+*.pem
+*.key
+*.p12
+
+# Local databases, backups and logs
+*.mdf
+*.ldf
+*.bak
+*.log

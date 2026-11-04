@@ -24,7 +24,7 @@ onMounted(() => {
     >
       <nav class="flex flex-col justify-between flex-grow space-y-6">
         <div class="flex justify-center mb-4">
-          <img src="/public/img/restaFlowIcon.png" alt="logo" class="w-24 h-24 p-2 rounded-xl">
+          <img src="/img/restaFlowIcon.png" alt="logo" class="w-24 h-24 p-2 rounded-xl">
         </div>
 
         <div class="flex flex-col space-y-6 opacity-0 animate-fade-in p-2" style="animation-delay: 0.1s">
