@@ -88,6 +88,32 @@ Live total calculation
 
 Modern responsive UI
 
+## 📸 Screenshots
+
+The Nuxt web interface is shown below (the UI is in Turkish). The screenshots were captured with fabricated demo data served by a throwaway mock API, not a real restaurant database.
+
+### Sign in and register
+
+| Sign in | Register |
+| --- | --- |
+| ![Sign in page](docs/screenshots/login.png) | ![Register page](docs/screenshots/register.png) |
+
+### Dashboard
+
+Latest order per table with status filters, the weekly order chart and the weekly earnings target.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Order details
+
+![Order details](docs/screenshots/order-detail.png)
+
+### Create an order
+
+Pick a table, a category and products; the order summary updates live.
+
+![Create an order](docs/screenshots/create-order.png)
+
 ## 🧩 Technologies Used
 Frontend (Web)
 
