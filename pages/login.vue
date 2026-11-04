@@ -39,7 +39,7 @@ async function onSubmit(event: Event) {
       <!-- Sol Panel - Dekoratif Alan -->
       <div class="w-1/2 bg-gray-50 relative overflow-hidden">
         <NuxtImg
-          src="../public/img/baseImg.png"
+          src="/img/baseImg.png"
           alt="RestaFlow Dekoratif Görseli"
           fetchpriority="high"
           width="640"
