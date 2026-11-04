@@ -114,9 +114,9 @@ Pick a table, a category and products; the order summary updates live.
 
 ### Desktop panel
 
-The desktop panel opens with its own sign-in window.
+The desktop panel opens with a welcome page and a side menu whose pages depend on the signed-in role.
 
-![Desktop sign-in window](docs/screenshots/desktop-login.png)
+![Desktop panel](docs/screenshots/desktop-home.png)
 
 ## 🧩 Technologies Used
 Frontend (Web)
