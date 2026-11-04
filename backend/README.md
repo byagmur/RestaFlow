@@ -29,6 +29,12 @@ Use a dedicated SQL login with only the permissions this application needs, neve
 - CORS allows the Nuxt dev server at `http://localhost:3000`.
 - The database schema is not included in this repository yet.
 
+## API overview
+
+Swagger UI listing the endpoints for accounts, orders, products and tables:
+
+![Swagger UI showing the RestaFlow API endpoints](docs/swagger-ui.png)
+
 ## Security notes
 
 This is a learning/portfolio project and is not production-ready:
