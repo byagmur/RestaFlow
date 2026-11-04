@@ -112,6 +112,12 @@ Pick a table, a category and products; the order summary updates live.
 
 ![Create an order](docs/screenshots/create-order.png)
 
+### Desktop panel
+
+The desktop panel opens with its own sign-in window.
+
+![Desktop sign-in window](docs/screenshots/desktop-login.png)
+
 ## 🧩 Technologies Used
 Frontend (Web)
 
